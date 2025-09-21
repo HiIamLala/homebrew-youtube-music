@@ -3,22 +3,23 @@ require 'net/http'
 
 cask "youtube-music" do
   desc "YouTube Music Desktop App"
-  homepage "https://github.com/th-ch/youtube-music"
+  homepage "https://github.com/ytmd-devs/ytmd"
 
   # Fetch the latest release version from GitHub
-  release_url = "https://github.com/th-ch/youtube-music/releases"
-  latest_url = "#{release_url}/latest"
+  release_url = "https://github.com/ytmd-devs/ytmd"
+  releases = "#{release_url}/releases"
+  latest_url = "#{releases}/latest"
   response = Net::HTTP.get_response(URI.parse(latest_url))
   latest_url = response['location']
   odie "Cannot find the latest version" if (latest_url.nil?)
-  latest_release = latest_url.delete_prefix("#{release_url}/tag/")
-
+  latest_tag   = File.basename(URI.parse(response["location"]).path)
+  
   version :latest
 
-  base_url = "#{release_url}/download/#{latest_release}/YouTube-Music-#{latest_release.delete_prefix('v')}"
+  base_url = "#{releases}/download/#{latest_tag}/YouTube-Music-#{latest_tag.delete_prefix('v')}"
   file_extension = Hardware::CPU.arm? ? "-arm64.dmg" : ".dmg"
 
-  url "#{base_url}#{file_extension}"
+  url "#{base_url}#{file_extension}", verified: "github.com/ytmd-devs/ytmd/"
 
   livecheck do
     url :url
